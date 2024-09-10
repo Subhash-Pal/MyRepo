@@ -1,7 +1,7 @@
 import QtQuick
-import QtQuick.Controls
+import com.company.PlayerController
 
-ApplicationWindow {
+Window {
   id: root
 
   width: 640
@@ -47,9 +47,9 @@ ApplicationWindow {
       }
 
       songIndex: 0
-      title: "ghgf Eine Kleine Nachtmusik"
-      authorName: "Wolcfgang Amadcceus Mozart"
-      imageColor: "red"
+      title: "Eine Kleine Nachtmusik"
+      authorName: "Wolfgang Amadeus Mozart"
+      imageSource: "assets/images/song_1.jpg"
     }
 
     AudioInfoBox {
@@ -65,7 +65,7 @@ ApplicationWindow {
       songIndex: 1
       title: "Symphone No. 5"
       authorName: "Ludwig Van Beethoven"
-      imageColor: "yellow"
+      imageSource: "assets/images/song_2.jpg"
     }
 
     AudioInfoBox {
@@ -81,7 +81,8 @@ ApplicationWindow {
       songIndex: 2
       title: "Air on the G String"
       authorName: "Johann Sebastian Bach"
-      imageColor: "purple"
+      imageSource: "assets/images/song_3.jpg"
+      videoSource: "qrc:/SongPlayer/assets/videos/video_1.avi"
     }
   }
 
@@ -102,65 +103,37 @@ ApplicationWindow {
 
       spacing: 20
 
-      TextButton {
+      ImageButton {
         id: previousButton
 
-        width: 50
-        height: 50
+        width: 64
+        height: 64
 
-        text: "<"
+        source: "assets/icons/previous_icon.png"
 
-        onClicked: playerController.switchToPreviousSong()
+        onClicked: PlayerController.switchToPreviousSong()
       }
 
-      TextButton {
+      ImageButton {
         id: playPauseButton
 
-        width: 75
-        height: 50
+        width: 64
+        height: 64
 
-        text: playerController.playing ? "Pause" : "Play"
+        source: PlayerController.playing ? "assets/icons/pause_icon.png" : "assets/icons/play_icon.png"
 
-        onClicked: playerController.playPause()
+        onClicked: PlayerController.playPause()
       }
 
-      TextButton {
+      ImageButton {
         id: nextButton
 
-        width: 50
-        height: 50
+        width: 64
+        height: 64
 
-        text: ">"
+        source: "assets/icons/next_icon.png"
 
-        onClicked: playerController.switchToNextSong()
-      }
-    }
-  }
-
-  QtObject {
-    id: playerController
-
-    property int currentSongIndex: 0
-    property int songCount: 3
-    property bool playing: false
-
-    function playPause() {
-      playing = !playing
-    }
-
-    function switchToPreviousSong() {
-      if (currentSongIndex > 0) {
-        currentSongIndex--
-      } else {
-        currentSongIndex = songCount - 1
-      }
-    }
-
-    function switchToNextSong() {
-      if (currentSongIndex + 1 >= songCount) {
-        currentSongIndex = 0
-      } else {
-        currentSongIndex++
+        onClicked: PlayerController.switchToNextSong()
       }
     }
   }
