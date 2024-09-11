@@ -1,144 +1,67 @@
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import Qt.labs.qmlmodels 1.0
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick 2.2
-import QtQuick.Controls 1.2
-Window{
+import QtQuick 2.14
+import QtQuick.Controls 2.14
+import QtQuick.Controls 1.4
+import Qt.labs.folderlistmodel 2.12
 
-        width:800
-        height :600
-        Rectangle{
-                width:parent.width
-                height:parent.height
-                color: "#333333"
-                id: root
+ApplicationWindow {
+    visible: true
+    width: 640
+    height: 480
 
+    TableView {
+        width: parent.width
+        height: parent.height
 
-            ListModel {
-                id: live_alertmodel
+        model: ListModel {
+            id: tableModel
+            // Initial empty, data will be filled from the text file
+        }
 
-            }
+        TableViewColumn {
+            title: "Name"
+            role: "name"
+            width: 150
+        }
 
-            TableView {
-               // anchors.top: download_bt.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: root.width
-                height: 300
+        TableViewColumn {
+            title: "Age"
+            role: "age"
+            width: 100
+        }
+    }
 
-                TableViewColumn {
-                    role: "time"
-                    title: "Time"
-                    width: root.width/5
-                    delegate:textDelegate
-                }
-                TableViewColumn {
-                    role: "location"
-                    title: "Location"
-                    width: root.width/5
-                    delegate:textDelegate
-                }
+    Component.onCompleted: {
+        // Call the function to load data from the text file
+        loadDataFromFile("./data.txt")
+    }
 
-                TableViewColumn {
-                    role: "alert"
-                    title: "Alert"
-                    width: root.width/5
-                    delegate:textDelegate
-                }
+    function loadDataFromFile(filename) {
+        var file = Qt.createQmlObject('import QtQuick 2.0; QtObject {}', tableModel);
+        var url = Qt.resolvedUrl(filename);
 
-                TableViewColumn {
-                    role: "image"
-                    title: "Image"
-                    width: root.width/5
-                    delegate:imageDelegate
-
-                }
-
-                TableViewColumn {
-                    role: "shape"
-                    title: "Shape"
-                    width: root.width/5
-                    delegate:shapeDelegate
-
-                }
-                model: live_alertmodel
-
-
-
-                Component  {
-                                id: textDelegate
-                                Item {
-                                    id: f_item
-                                    height: cell_txt.height
-                                    Text {
-                                        id: cell_txt
-                                        width: parent.width
-                                        verticalAlignment: Text.AlignVCenter
-                                        horizontalAlignment: Text.AlignHCenter
-                                        //font.bold: true
-                                        text: styleData.value
-                                        elide: Text.AlignHCenter
-                                        color: "black"
-                                        renderType: Text.NativeRendering
-                                    }
-                                }
-                            }
-
-
-
-                Component {
-
-                    id: shapeDelegate
-                            Item {
-
-                            //clip: true
-                            anchors.centerIn: parent
-                            Rectangle {
-                                           border.width: 1
-                                           border.color:styleData.selected?"blue":"lightgray"
-                                     }
-                            }
-                         }
-
-
-                Component {
-                    id: imageDelegate
-                    Item {
-                        Image {
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            fillMode: Image.PreserveAspectFit
-                            height:20
-                            cache : true;
-                            asynchronous: true;
-                            source: styleData.value// !== undefined  ? styleData.value : ""
+        // Load the file and process data
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        console.log("",url);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    // Process file contents (assuming data is in CSV format)
+                    var lines = xhr.responseText.split("\n");
+                    for (var i = 0; i < lines.length; i++) {
+                        var fields = lines[i].split(",");
+                        if (fields.length === 2) {
+                            tableModel.append({
+                                name: fields[0].trim(),
+                                age: parseInt(fields[1].trim())
+                            });
                         }
                     }
-                 }
-
-
-
-
-
-
-
-
-
-                Component.onCompleted: {
-                    for(var i=0;i<10;i++)
-                      live_alertmodel.append({ time:"07/23/2015",
-                                      location:"location",
-                                      alert:"access",
-                                      image:"http://images.freeimages.com/images/premium/previews/4852/48521810-globe-icon-flat-icon-with-long-shadow.jpg"
-
-
-                                             })
+                } else {
+                    console.log("Error loading file");
                 }
             }
-      }
-
-
-
-
+        }
+        xhr.send();
+    }
 }
